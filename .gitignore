@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Source files (not part of the site)
+# Heavy originals — used to generate optimized assets in /assets/images/
+resources/
+
+# Editor
+.vscode/
+.idea/
+
+# Local dev
+*.log
+node_modules/

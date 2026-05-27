@@ -97,4 +97,55 @@
       }
     });
   });
+
+  /* ----- CAROUSEL ----- */
+  const carousels = document.querySelectorAll('[data-carousel]');
+  carousels.forEach((carousel) => {
+    const track = carousel.querySelector('[data-track]');
+    const prev = carousel.querySelector('[data-prev]');
+    const next = carousel.querySelector('[data-next]');
+    const counter = carousel.querySelector('[data-counter]');
+    if (!track) return;
+
+    const slides = track.querySelectorAll('.carousel-slide');
+    const total = slides.length;
+
+    const getSlideStep = () => {
+      if (!slides.length) return 0;
+      const trackStyle = getComputedStyle(track);
+      const gap = parseFloat(trackStyle.columnGap || trackStyle.gap || 0);
+      return slides[0].getBoundingClientRect().width + gap;
+    };
+
+    const scrollBy = (dir) => {
+      const step = getSlideStep();
+      track.scrollBy({ left: dir * step, behavior: 'smooth' });
+    };
+
+    const updateUI = () => {
+      const step = getSlideStep();
+      const idx = step > 0 ? Math.round(track.scrollLeft / step) : 0;
+      const current = Math.min(Math.max(idx + 1, 1), total);
+      if (counter) counter.textContent = `${current} / ${total}`;
+      if (prev) prev.toggleAttribute('disabled', track.scrollLeft <= 4);
+      if (next) next.toggleAttribute('disabled', track.scrollLeft + track.clientWidth >= track.scrollWidth - 4);
+    };
+
+    prev?.addEventListener('click', () => scrollBy(-1));
+    next?.addEventListener('click', () => scrollBy(1));
+
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); scrollBy(-1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); scrollBy(1); }
+    });
+
+    let scrollTimeout;
+    track.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(updateUI, 80);
+    }, { passive: true });
+
+    window.addEventListener('resize', updateUI);
+    updateUI();
+  });
 })();
